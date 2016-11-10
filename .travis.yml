@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: Uo+kfkDK/Rewx1fRvgay2vH2yxV54o1X2HanTNwJsdSUijEgDycmb4UXTH6aOCv7MpBhWjFlpwjqfpFKvhar2JVxPjfcrnGaWm0oEmMsNkiJkIE6C+TII84XT6MmK+vZQTO8IZ+MX8DmlKG73c4F3ljUy2CJPvGoDKKSam+5KDgbhKj2YXdW6/5sxPYm3Z9l9Y8Wh1QbM0JwQaXGsRaLqVLdEyDzpKAUXghiQyIqbT1VVXl+95FzGsIPV7U40KPNk0jDcOpge3ux1ZWJ5l+Wj038pTrNqMkuJLfy7dfHeX6kf3UUtf6B+Tlbtvu8HBEzD8ddiY0H0Jsxg3MHvtYPdb/x+Ywaw9HktFy1bwasoCykJEc4QpJLymD9Tu9DPvQugY839MqTwi/JNcud/JwAI4NpKovNkRhX0sjDjOdFATBDBnIJ9cvsLSO3eA5d7sIV06h6kInUtuBQgHqwjodPgfNMPxN4UjcO6UQT6sVpg/Fg9wCixdvGim9/5L91xvctR5B58DUFaNUZBmhZrSncO4r0dRAr5dQTllw2rzca450Ivs5CtHpFGTumykUQbz9KZt/RyH7hvCMdmsXpfV+dE55sDKlrdViu1sm5YPBXYorrbtvChN0jeM2sLgr5dHNOubSNBhiPEWSFWDjy+PhMS3VZSZm1CD3MEW2K7FN1RKs=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Tales-and-Novels-of-J-de-La-Fontaine-Volume-08_5282
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
